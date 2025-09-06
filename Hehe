@@ -1,0 +1,77 @@
+-- Crear el menú circular
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local circleMenu = Instance.new("ImageLabel")
+circleMenu.Size = UDim2.new(0, 50, 0, 50)
+circleMenu.Position = UDim2.new(0, 10, 0, 10)
+circleMenu.Image = "rbxassetid://285087527" -- ID de la imagen de un círculo
+circleMenu.BackgroundTransparency = 1
+circleMenu.Active = true
+circleMenu.Draggable = true
+circleMenu.Parent = screenGui
+
+-- Crear el submenú rectangular
+local subMenu = Instance.new("Frame")
+subMenu.Size = UDim2.new(0, 200, 0, 100)
+subMenu.Position = UDim2.new(0, 70, 0, 70)
+subMenu.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Color gris oscuro
+subMenu.BorderSizePixel = 0
+subMenu.Visible = false
+subMenu.Parent = screenGui
+
+local doubleJumpButton = Instance.new("TextButton")
+doubleJumpButton.Size = UDim2.new(1, 0, 0.5, 0)
+doubleJumpButton.Position = UDim2.new(0, 0, 0, 0)
+doubleJumpButton.Text = "Activar Salto Doble"
+doubleJumpButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- Color blanco
+doubleJumpButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Color negro
+doubleJumpButton.BorderSizePixel = 0
+doubleJumpButton.Parent = subMenu
+
+-- Variable para controlar el estado del salto doble
+local doubleJumpEnabled = false
+
+-- Función para activar/desactivar el salto doble
+local function toggleDoubleJump()
+    doubleJumpEnabled = not doubleJumpEnabled
+    if doubleJumpEnabled then
+        doubleJumpButton.Text = "Desactivar Salto Doble"
+    else
+        doubleJumpButton.Text = "Activar Salto Doble"
+    end
+end
+
+-- Conectar el clic del botón de salto doble a la función de toggle
+doubleJumpButton.MouseButton1Click:Connect(toggleDoubleJump)
+
+-- Función para mostrar/ocultar el submenú
+local function toggleSubMenu()
+    subMenu.Visible = not subMenu.Visible
+end
+
+-- Conectar el clic del menú circular al submenú
+circleMenu.MouseButton1Click:Connect(toggleSubMenu)
+
+-- Función para manejar el salto doble
+local function onCharacterAdded(character)
+    local humanoid = character:WaitForChild("Humanoid")
+
+    local function onJump()
+        if doubleJumpEnabled and humanoid.FloorMaterial == Enum.Material.Air then
+            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+            wait(0.1)
+            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
+
+    humanoid.Jumping:Connect(onJump)
+end
+
+-- Conectar la función al evento de añadido de personaje
+game.Players.LocalPlayer.CharacterAdded:Connect(onCharacterAdded)
+
+-- Llamar a la función para el personaje actual
+if game.Players.LocalPlayer.Character then
+    onCharacterAdded(game.Players.LocalPlayer.Character)
+end
